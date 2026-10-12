@@ -30,7 +30,7 @@ export interface AppData { profile: Profile | null; products: Product[]; price: 
 export interface CheckoutInput { productId: string; quantity: number; intent: PurchaseIntent; stockpointId: string; paymentMethod: PaymentMethod; idempotencyKey: string; }
 export interface RegistrationInput { fullName: string; phone: string; otp: string; referralCode: string; ktp: File | null; selfie: File | null; consent: boolean; }
 export interface Repository {
-  readonly mode: 'sandbox' | 'supabase' | 'unconfigured';
+  readonly mode: 'sandbox' | 'unconfigured';
   load(): Promise<AppData>;
   sendOtp(phone: string): Promise<void>;
   verifyAndSubmit(input: RegistrationInput): Promise<Profile>;
