@@ -6,7 +6,11 @@ Validated the standalone reseller/buyer project locally before handoff.
 
 - `npm ci`: pinned dependency installation succeeded in the final SGI-Referral directory; npm reported no vulnerabilities.
 - `npm run build`: TypeScript and production Vite build passed.
-- `npm test`: domain/repository tests passed for qualification, commissions, sandbox checkout and registration.
+- `npm test`: 16 domain/repository tests passed.
+- `npm run test:db`: 16 PostgreSQL migration/authorization checks passed with PGlite, including payment idempotency, serial allocation, commission eligibility and protected pickup information.
+- Edge Function TypeScript was checked separately; the eight signed-webhook validation cases were exercised with a Node WebCrypto harness. The maintained security tests use Deno: `deno test --allow-env supabase/tests/security.test.ts`.
+
+The PostgreSQL tests stub Supabase Auth/Storage schemas and pgcrypto functions. They do not replace integration testing against the chosen Supabase project and payment/KYC providers.
 
 ## Browser checks
 
@@ -20,7 +24,7 @@ Validated the standalone reseller/buyer project locally before handoff.
 - QRIS and Virtual Account sandbox payment flows reach pickup receipts.
 - Closing an unpaid checkout and reopening it through My Orders resumes that payment.
 - Selected stockpoint and referral attribution are retained in the receipt.
-- Production build without sandbox enabled shows an explicit unconfigured state, with no sandbox badge or sample transactions.
+- Production build without configured Supabase credentials shows an explicit unconfigured state, with no sandbox badge or sample transactions.
 - No browser errors or warnings were reported during the final app check.
 
-The local development preview runs in an explicitly labelled sandbox. This prototype does not collect live payments or identity documents.
+The local development preview runs in an explicitly labelled sandbox. Production payment collection and identity verification require the setup in DEPLOYMENT.md and vendor integration checks.

@@ -70,6 +70,7 @@ describe('input and deployment boundaries', () => {
     expect(resolveRepositoryMode({ dev: true })).toBe('sandbox');
     expect(resolveRepositoryMode({ dev: true, enableSandbox: 'false' })).toBe('unconfigured');
     expect(resolveRepositoryMode({ dev: false, enableSandbox: 'true' })).toBe('sandbox');
+    expect(resolveRepositoryMode({ dev: false, url: 'https://project.supabase.co', anonKey: 'public-key', enableSandbox: 'true' })).toBe('supabase');
   });
 });
 

@@ -2,8 +2,6 @@
 
 The first standalone Sampoerna Gold MVP application, built by Newtn Technology: a mobile-first web app for resellers and buyers, with its own Vercel deployment. The stockpoint and administration applications will be separate projects; there is no role switch in this app.
 
-This prototype uses an in-memory sandbox repository. It does not connect to a live backend, payment gateway, or identity provider.
-
 ## Application structure
 
 The interface follows the supplied information architecture:
@@ -23,13 +21,13 @@ npm ci
 cp .env.example .env.local
 ```
 
-For the local sandbox, change `.env.local` to include:
+For the local sandbox, keep the Supabase values blank and change `.env.local` to include:
 
 ```dotenv
 VITE_ENABLE_SANDBOX=true
 ```
 
-Development (`npm run dev`) enables the sandbox unless `VITE_ENABLE_SANDBOX` is explicitly `false`. Then run:
+Then run:
 
 ```sh
 npm run dev
@@ -39,9 +37,15 @@ Open the local URL printed by Vite. The sandbox is clearly labelled. It starts w
 
 Sandbox changes exist only in memory and reset when the page reloads. The sandbox does not upload or persist identity images, filenames or submitted personal data. Use made-up names and numbers. To re-enter the seeded account after signing out, use `081234567890`, request an OTP and enter `123456`.
 
-A production build without `VITE_ENABLE_SANDBOX=true` shows an unconfigured state rather than silently simulating a live account or payment.
+## Supabase mode
 
-See [Deployment](docs/DEPLOYMENT.md) for Vercel setup and [Sandbox behavior](docs/BACKEND.md) for how the in-memory repository works.
+Set both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to activate the live Supabase repository. It takes precedence over sandbox mode. Keep `VITE_ENABLE_SANDBOX=false` for production.
+
+The repository includes the schema, row-level access controls, private identity storage and Edge Functions for KYC submission, payment creation, payment synchronization and signed webhooks. Connect your selected providers through the documented server-side bridge contracts. Supabase Auth handles WhatsApp OTP. A browser payment-confirmation click asks the server to check the gateway; it cannot mark a real order paid.
+
+Provider credentials, live prices, stockpoints and serialized inventory are not supplied. Unconfigured production builds display the connection state rather than silently simulating a live account or payment. The default database commission setting enables one upline level; three-level payouts require an explicit server-side configuration change.
+
+See [Deployment](docs/DEPLOYMENT.md) for Vercel and Supabase setup and [Backend and provider contracts](docs/BACKEND.md) for integration payloads and database behavior.
 
 ## Validate and build
 
@@ -52,17 +56,21 @@ npm run build
 npm run preview
 ```
 
-The build output is `dist/`. Commit `package-lock.json` and use `npm ci` for reproducible installs.
+The build output is `dist/`. Commit `package-lock.json` and use `npm ci` for reproducible installs. The `build` command checks the browser TypeScript application; Edge Functions and SQL require their own Supabase integration validation.
 
 ## Repository layout
 
 ```text
 src/components/       Approved pages, list views and modals
-src/lib/              Types, formatting, business rules and sandbox repository
+src/lib/              Types, formatting, business rules and repositories
 public/assets/        Brand/product assets and source attribution
-tests/                Business-rule and sandbox verification
-docs/                 Deployment and sandbox guidance
+supabase/migrations/  Schema, RPCs, access policies and seed catalogue
+supabase/functions/   Configurable KYC and payment integrations
+tests/                Business-rule and repository verification
+docs/                 Deployment and backend integration guidance
 vercel.json           Vite build, SPA rewrites and response headers
 ```
 
-The finance payout runner, buyback operations, stockpoint release console and administrative interface belong to the remaining applications and are not exposed as extra pages here.
+The finance payout runner, buyback operations, stockpoint release console and administrative interface belong to the remaining applications and are not exposed as extra pages here. This repository prepares the first app for deployment; creating cloud projects, entering secrets, enabling providers and publishing are separate deployment actions.
+
+Run `npm run test:db` for the included local PostgreSQL migration and authorization checks. See [backend validation details](./docs/BACKEND.md).
